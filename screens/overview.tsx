@@ -1,34 +1,73 @@
+import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { ScreenContent } from 'components/ScreenContent';
-import { StyleSheet, View } from 'react-native';
-
-import { Button } from '../components/Button';
-import { RootStackParamList } from '../navigation';
+import { StyleSheet, View, Text, FlatList, TouchableOpacity, Modal, Image, ActivityIndicator } from 'react-native';
+import { RootStackParamList } from 'navigation';
 
 type OverviewScreenNavigationProps = StackNavigationProp<RootStackParamList, 'Overview'>;
 
-export default function Overview() {
-  const navigation = useNavigation<OverviewScreenNavigationProps>();
+const Overview = ({ navigation }) => {
+  const [pokemons, setPokemons] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPokemons = async () => {
+      try {
+        const response = await fetch(
+          'https://pokeapi.co/api/v2/pokemon'
+        );
+        const json = await response.json();
+        setPokemons(json.results);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPokemons();
+  }, []);
+
+  if (loading) {
+    return <ActivityIndicator size="large" />;
+  }
 
   return (
-    <View style={styles.container}>
-      <ScreenContent path="screens/overview.tsx" title="Overview" />
-      <Button
-        onPress={() =>
-          navigation.navigate('Details', {
-            name: 'Dan',
-          })
-        }
-        title="Show Details"
-      />
-    </View>
+    <FlatList
+    data={pokemons}
+    //keyExtractor={(item) => item.results.toString()}
+    renderItem={({item }) => (
+      <TouchableOpacity
+        style={styles.pokeContainer}
+        onPress={() => navigation.navigate('Details', {pokeDetails: item})}>
+        <Text style={styles.url}>{item.url}</Text>
+        <Text style={styles.name}>{item.name}</Text>
+      </TouchableOpacity>
+    )}
+    />
   );
-}
+};
 
-export const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
+export default Overview;
+
+const styles = StyleSheet.create({
+  pokeContainer: {
+    backgroundColor: '#f0f0f0',
+    padding: 20,
+    marginBottom: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderColor: '#ccc',
+    borderWidth: 1,
+  },
+  name: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#861414',
+  },
+  url: {
+    fontSize: 14,
+    color: '#666',
   },
 });

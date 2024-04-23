@@ -1,6 +1,7 @@
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { ScreenContent } from 'components/ScreenContent';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 import { RootStackParamList } from '../navigation';
 
@@ -11,10 +12,7 @@ export default function Details() {
 
   return (
     <View style={styles.container}>
-      <ScreenContent
-        path="screens/details.tsx"
-        title={`Showing details for user ${router.params.name}`}
-      />
+      <Text>{router.params.pokeDetails.name}</Text>
     </View>
   );
 }
